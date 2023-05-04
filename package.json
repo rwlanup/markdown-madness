@@ -1,15 +1,18 @@
 {
-  "name": "md-game",
+  "name": "markdown-madness",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@emotion/cache": "^11.10.8",
     "@emotion/react": "^11.10.8",
+    "@emotion/server": "^11.10.0",
     "@emotion/styled": "^11.10.8",
     "@mui/icons-material": "^5.11.16",
     "@mui/lab": "5.0.0-alpha.129",
