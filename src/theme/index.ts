@@ -158,6 +158,9 @@ const DefaultConfig: ThemeOptions = {
     '0px 11px 14px -7px rgba(3,8,9,.07),0px 23px 36px 3px rgba(3,8,9,.06)',
     '0px 11px 15px -7px rgba(3,8,9,.07),0px 24px 38px 3px rgba(3,8,9,.06)',
   ],
+  shape: {
+    borderRadius: 20,
+  },
 };
 
 const theme = createTheme(deepmerge(deepmerge(DefaultConfig, ComponentConfig), TypographyConfig));

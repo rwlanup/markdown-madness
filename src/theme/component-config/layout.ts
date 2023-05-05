@@ -4,7 +4,7 @@ export const LayoutComponentsConfig: ThemeOptions = {
   components: {
     MuiContainer: {
       defaultProps: {
-        maxWidth: 'xl',
+        maxWidth: 'lg',
       },
     },
   },

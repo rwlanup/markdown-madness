@@ -2,10 +2,19 @@ import type { ThemeOptions } from '@mui/material';
 
 export const DataDisplayComponentsConfig: ThemeOptions = {
   components: {
-    MuiChip: {
+    MuiListItemText: {
+      defaultProps: {
+        primaryTypographyProps: {
+          fontSize: (theme) => theme.typography.body2.fontSize,
+          fontWeight: 'Medium',
+        },
+      },
+    },
+    MuiListItemIcon: {
       styleOverrides: {
         root: {
-          borderRadius: '4px',
+          minWidth: 40,
+          color: 'inherit',
         },
       },
     },
