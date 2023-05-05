@@ -6,7 +6,6 @@ import { EmotionCache, CacheProvider } from '@emotion/react';
 import createEmotionCache from '@/theme/emotion-cache';
 import Head from 'next/head';
 import Header from '@/components/layouts/header';
-import Sidebar from '@/components/layouts/sidebar';
 import StatusSidebar from '@/components/layouts/status-sidebar';
 
 // Client-side cache, shared for the whole session of the user in the browser.
