@@ -7,6 +7,8 @@ import createEmotionCache from '@/theme/emotion-cache';
 import Head from 'next/head';
 import Header from '@/components/layouts/header';
 import StatusSidebar from '@/components/layouts/status-sidebar';
+import { Provider } from 'react-redux';
+import store from '@/store';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -17,23 +19,32 @@ export interface AppProps extends _AppProps {
 
 export default function App({ Component, pageProps, emotionCache = clientSideEmotionCache }: AppProps) {
   return (
-    <CacheProvider value={emotionCache}>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppSnackbarProvider />
-        <div style={{ minHeight: '100vh' }}>
-          <Header />
-          <Toolbar />
-          <Box sx={{ pl: '240px', pr: { xs: '240px', sm: '360px' } }}>
-            <Component {...pageProps} />
-          </Box>
-          <StatusSidebar />
-        </div>
-      </ThemeProvider>
-    </CacheProvider>
+    <Provider store={store}>
+      <CacheProvider value={emotionCache}>
+        <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AppSnackbarProvider />
+          <div style={{ minHeight: '100vh' }}>
+            <Header />
+            <Toolbar />
+            <Box
+              sx={{
+                pl: { md: '240px' },
+                pr: { lg: '360px' },
+                minHeight: 'calc(100vh - 64px)',
+                bgcolor: 'grey.100',
+              }}
+            >
+              <Component {...pageProps} />
+            </Box>
+            <StatusSidebar />
+          </div>
+        </ThemeProvider>
+      </CacheProvider>
+    </Provider>
   );
 }

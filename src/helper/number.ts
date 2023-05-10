@@ -1,4 +1,5 @@
-export const intToString = (num: number): string => {
+export const intToString = (num?: number): string => {
+  if (typeof num === 'undefined') return '';
   let strNum = num.toString().replace(/[^0-9.]/g, '');
   if (parseInt(strNum) < 1000) {
     return num.toString();

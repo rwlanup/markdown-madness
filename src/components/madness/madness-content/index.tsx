@@ -1,4 +1,3 @@
-import { formatDateTime } from '@/helper/datetime';
 import type { MadnessContent } from '@/types/madness';
 import {
   Avatar,
@@ -37,36 +36,63 @@ const markdownOverrides: React.ComponentProps<typeof MuiMarkdown>['overrides'] =
 };
 
 export default function MadnessContent({ content }: MadnessContentProps) {
-  const formattedPostedDateTime = formatDateTime(content.createdAt);
   return (
-    <Card elevation={0}>
+    <Card
+      elevation={0}
+      variant="outlined"
+      sx={{
+        maxWidth: '720px',
+        mx: 'auto',
+        borderRadius: { xs: 0, sm: 1 },
+      }}
+    >
       <CardHeader
-        avatar={<Avatar sx={{ bgcolor: 'primary.main' }}>A</Avatar>}
-        title="Anup Rawal"
-        subheader={`Posted on ${formattedPostedDateTime}`}
+        avatar={
+          <Avatar src={content.contributor.avatarUrl} sx={{ bgcolor: 'primary.main' }}>
+            {content.contributor.username[0].toUpperCase()}
+          </Avatar>
+        }
+        title={content.contributor.username}
+        subheader={`Posted on ${content.createdAt}`}
         titleTypographyProps={{ fontWeight: 'Medium' }}
       />
-      <CardContent>
+      <CardContent
+        sx={{
+          borderTop: 1,
+          borderBottom: 1,
+          borderColor: 'divider',
+          maxHeight: 'calc(100vh - 260px)',
+          overflowY: 'auto',
+        }}
+      >
         <MuiMarkdown overrides={markdownOverrides}>{content.markdown}</MuiMarkdown>
       </CardContent>
-      <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
+      <CardActions sx={{ justifyContent: 'space-between', p: 2 }}>
         <ButtonGroup>
           <Button startIcon={<ThumbUpRoundedIcon />}>
-            <Box component="span" sx={{ ml: 0.5 }}>
-              {intToString(content.likesCount)}
-            </Box>
+            {content.reactionCount.LIKES > 0 && (
+              <Box component="span" sx={{ ml: 0.5 }}>
+                {intToString(content.reactionCount.LIKES)}
+              </Box>
+            )}{' '}
+            Like{content.reactionCount.LIKES > 1 && 's'}
           </Button>
           <Button startIcon={<ThumbDownRoundedIcon />}>
-            <Box component="span" sx={{ ml: 0.5 }}>
-              {intToString(content.dislikeCount)}
-            </Box>
+            {content.reactionCount.DISLIKES > 0 && (
+              <Box component="span" sx={{ ml: 0.5 }}>
+                {intToString(content.reactionCount.DISLIKES)}
+              </Box>
+            )}
+            Dislike{content.reactionCount.DISLIKES > 1 && 's'}
           </Button>
         </ButtonGroup>
-        <Box>
-          <Typography variant="body2" fontWeight="Bold">
-            {intToString(content.score)} Points
-          </Typography>
-        </Box>
+        {content.score > 0 && (
+          <Box>
+            <Typography color="warning.800" variant="body2" fontWeight="Bold">
+              {intToString(content.score)} Points
+            </Typography>
+          </Box>
+        )}
       </CardActions>
     </Card>
   );

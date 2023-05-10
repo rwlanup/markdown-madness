@@ -12,7 +12,8 @@ export default function Header() {
         color="transparent"
         position="fixed"
         sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
+          zIndex: (theme) => ({ md: theme.zIndex.drawer + 1 }),
+          bgcolor: 'common.white',
           borderBottom: 1,
           borderColor: 'divider',
         }}
@@ -27,7 +28,7 @@ export default function Header() {
           >
             <MenuRoundedIcon />
           </IconButton>
-          <Typography variant="subtitle1" fontWeight="Medium" noWrap>
+          <Typography sx={{ display: { xs: 'none', sm: 'block' } }} variant="subtitle1" fontWeight="Medium" noWrap>
             Markdown Madness
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>

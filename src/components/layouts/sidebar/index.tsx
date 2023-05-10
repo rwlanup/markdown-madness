@@ -1,5 +1,6 @@
 import {
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -18,6 +19,7 @@ import ManageAccountsRoundedIcon from '@mui/icons-material/ManageAccountsRounded
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import FeedRoundedIcon from '@mui/icons-material/FeedRounded';
 import { mergeSxProps } from '@/helper/props';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 interface MenuItemButtonProps {
   Icon: React.ReactElement;
@@ -54,7 +56,7 @@ interface SidebarProps {
 }
 export default function Sidebar({ isOpen, toggleIsOpen }: SidebarProps) {
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'), {
-    defaultMatches: false,
+    defaultMatches: true,
   });
   const pathname = usePathname();
 
@@ -66,7 +68,17 @@ export default function Sidebar({ isOpen, toggleIsOpen }: SidebarProps) {
       ModalProps={{ keepMounted: true }}
       PaperProps={{ sx: { width: 240 } }}
     >
-      <Toolbar />
+      <Toolbar>
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={toggleIsOpen}
+          sx={{ mr: 2, display: { md: 'none' } }}
+        >
+          <CloseRoundedIcon />
+        </IconButton>
+      </Toolbar>
       <List sx={{ pr: 4 }}>
         <MenuItem selected={pathname === '/'} Icon={<FeedRoundedIcon />} label="Feed" LinkComponent={Link} href="/" />
         <MenuItem
