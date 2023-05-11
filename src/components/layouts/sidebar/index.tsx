@@ -22,6 +22,8 @@ import FeedRoundedIcon from '@mui/icons-material/FeedRounded';
 import { mergeSxProps } from '@/helper/props';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import useAppSelector from '@/hooks/useAppSelector';
+import useAppDispatch from '@/hooks/useAppDispatch';
+import { removeAuth } from '@/store/services/auth';
 
 interface MenuItemButtonProps {
   Icon: React.ReactElement;
@@ -64,6 +66,10 @@ export default function Sidebar({ isOpen, toggleIsOpen }: SidebarProps) {
   });
   const pathname = usePathname();
   const user = useAppSelector((state) => state.auth.user);
+  const dispatch = useAppDispatch();
+  const logout = () => {
+    dispatch(removeAuth());
+  };
 
   return (
     <Drawer
@@ -111,7 +117,7 @@ export default function Sidebar({ isOpen, toggleIsOpen }: SidebarProps) {
             >
               {!user.hasChangedPassword && <WarningRoundedIcon color="error" />}
             </MenuItem>
-            <MenuItem Icon={<LogoutRoundedIcon />} label="Logout" />
+            <MenuItem onClick={logout} Icon={<LogoutRoundedIcon />} label="Logout" />
           </>
         )}
       </List>
