@@ -14,4 +14,5 @@ export interface Contributor {
   reactedPosts: Record<string, REACTION>;
   score: number;
   thiefCount: number;
+  password?: string;
 }

@@ -1,8 +1,8 @@
-import { Card, CardHeader, CardContent, CardActions, Box, Skeleton, Stack } from '@mui/material';
+import { Card, CardHeader, CardContent, CardActions, Skeleton, Stack } from '@mui/material';
 
 export default function MadnessContentSkeleton() {
   return (
-    <Card elevation={0} variant="outlined" sx={{ maxWidth: '720px', mx: 'auto', borderRadius: { xs: 0, sm: 1 } }}>
+    <Card elevation={0} variant="outlined" sx={{ maxWidth: 'md', mx: 'auto', borderRadius: { xs: 0, sm: 1 } }}>
       <CardHeader
         avatar={<Skeleton variant="circular" height={40} width={40} />}
         title={<Skeleton height={20} width={180} />}

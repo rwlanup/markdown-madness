@@ -12,5 +12,12 @@ export const InputComponentsConfig: ThemeOptions = {
         fullWidth: true,
       },
     },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
+    },
   },
 };

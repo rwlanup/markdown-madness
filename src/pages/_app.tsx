@@ -1,3 +1,4 @@
+import './global.css';
 import type { AppProps as _AppProps } from 'next/app';
 import { Box, CssBaseline, ThemeProvider, Toolbar } from '@mui/material';
 import theme from '@/theme';

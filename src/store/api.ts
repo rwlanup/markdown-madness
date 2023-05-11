@@ -27,7 +27,7 @@ const firebaseBaseQuery =
         return {
           error: {
             status: 500,
-            message: 'Something went wrong, please try again later.',
+            message: error instanceof Error ? error.message : 'Something went wrong, please try again later.',
           },
         };
       }

@@ -41,7 +41,7 @@ export default function MadnessContent({ content }: MadnessContentProps) {
       elevation={0}
       variant="outlined"
       sx={{
-        maxWidth: '720px',
+        maxWidth: 'md',
         mx: 'auto',
         borderRadius: { xs: 0, sm: 1 },
       }}
