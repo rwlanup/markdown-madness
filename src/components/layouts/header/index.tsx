@@ -11,7 +11,9 @@ import { getAuthFromStorage } from '@/helper/storage';
 export default function Header() {
   const [isDrawerOpen, toggleIsDrawerOpen] = useToggle(false);
   const user = useAppSelector((state) => state.auth.user);
-  const [login] = useLoginMutation();
+  const [login] = useLoginMutation({
+    fixedCacheKey: 'AUTH_LOGIN',
+  });
 
   useEffect(() => {
     const userInfo = getAuthFromStorage();

@@ -16,10 +16,12 @@ import { usePathname } from 'next/navigation';
 import StorefrontRoundedIcon from '@mui/icons-material/StorefrontRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import ManageAccountsRoundedIcon from '@mui/icons-material/ManageAccountsRounded';
+import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import FeedRoundedIcon from '@mui/icons-material/FeedRounded';
 import { mergeSxProps } from '@/helper/props';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import useAppSelector from '@/hooks/useAppSelector';
 
 interface MenuItemButtonProps {
   Icon: React.ReactElement;
@@ -29,6 +31,7 @@ function MenuItem<T extends React.ElementType>({
   Icon,
   label,
   sx,
+  children,
   ...props
 }: MenuItemButtonProps & ListItemButtonProps<T>) {
   return (
@@ -45,6 +48,7 @@ function MenuItem<T extends React.ElementType>({
       >
         <ListItemIcon>{Icon}</ListItemIcon>
         <ListItemText primary={label} />
+        {children}
       </ListItemButton>
     </ListItem>
   );
@@ -59,6 +63,7 @@ export default function Sidebar({ isOpen, toggleIsOpen }: SidebarProps) {
     defaultMatches: true,
   });
   const pathname = usePathname();
+  const user = useAppSelector((state) => state.auth.user);
 
   return (
     <Drawer
@@ -66,7 +71,7 @@ export default function Sidebar({ isOpen, toggleIsOpen }: SidebarProps) {
       open={isOpen || !isMobile}
       onClose={toggleIsOpen}
       ModalProps={{ keepMounted: true }}
-      PaperProps={{ sx: { width: 240 } }}
+      PaperProps={{ sx: { width: 280 } }}
     >
       <Toolbar>
         <IconButton
@@ -88,15 +93,27 @@ export default function Sidebar({ isOpen, toggleIsOpen }: SidebarProps) {
           LinkComponent={Link}
           href="/store"
         />
-        <MenuItem
-          selected={pathname === '/profile'}
-          Icon={<PersonRoundedIcon />}
-          label="Profile"
-          LinkComponent={Link}
-          href="/profile"
-        />
-        <MenuItem Icon={<ManageAccountsRoundedIcon />} label="Change password" />
-        <MenuItem Icon={<LogoutRoundedIcon />} label="Logout" />
+        {!!user && (
+          <>
+            <MenuItem
+              selected={pathname === '/profile'}
+              Icon={<PersonRoundedIcon />}
+              label="Profile"
+              LinkComponent={Link}
+              href="/profile"
+            />
+            <MenuItem
+              selected={pathname === '/password-setting'}
+              Icon={<ManageAccountsRoundedIcon />}
+              label="Change Password"
+              LinkComponent={Link}
+              href="/password-setting"
+            >
+              {!user.hasChangedPassword && <WarningRoundedIcon color="error" />}
+            </MenuItem>
+            <MenuItem Icon={<LogoutRoundedIcon />} label="Logout" />
+          </>
+        )}
       </List>
     </Drawer>
   );

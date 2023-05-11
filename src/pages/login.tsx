@@ -23,17 +23,21 @@ function LoginMetaData() {
 }
 
 export const loginFormValidationSchema = z.object({
-  username: z.string({ required_error: 'Please enter your username' }),
-  password: z.string({
-    required_error:
-      'Please enter your password, if you are contributor and have not changed your password then re-enter username',
-  }),
+  username: z.string().min(1, 'Please enter your username'),
+  password: z
+    .string()
+    .min(
+      1,
+      'Please enter your password, if you are contributor and have not changed your password then re-enter username'
+    ),
 });
 
 export type LoginInputs = z.infer<typeof loginFormValidationSchema>;
 
 function LoginForm() {
-  const [login, { isLoading, isError, error }] = useLoginMutation();
+  const [login, { isLoading, isError, error }] = useLoginMutation({
+    fixedCacheKey: 'AUTH_LOGIN',
+  });
   const { control, handleSubmit } = useForm<LoginInputs>({
     resolver: zodResolver(loginFormValidationSchema),
     defaultValues: {
@@ -110,3 +114,5 @@ export default function LoginPage() {
     </Box>
   );
 }
+
+LoginPage.requireNoAuth = true;

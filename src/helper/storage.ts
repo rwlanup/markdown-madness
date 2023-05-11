@@ -2,14 +2,16 @@ import { LoginInputs, loginFormValidationSchema } from '@/pages/login';
 import jwt from 'jsonwebtoken';
 
 export const setAuthInStorage = (username: string, password: string): void => {
+  if (typeof window === 'undefined') return;
   const validateUser = loginFormValidationSchema.safeParse({ username, password });
   if (!validateUser.success) return;
   const token = jwt.sign({ username, password }, process.env.NEXT_PUBLIC_JWT_SECRET_KEY);
-  localStorage.setItem('auth', token);
+  window.localStorage.setItem('auth', token);
 };
 
 export const getAuthFromStorage = (): LoginInputs | null => {
-  const auth = localStorage.getItem('auth');
+  if (typeof window === 'undefined') return null;
+  const auth = window.localStorage.getItem('auth');
   if (!auth) return null;
   const user = jwt.verify(auth, process.env.NEXT_PUBLIC_JWT_SECRET_KEY);
   if (typeof user !== 'object') return null;
@@ -19,5 +21,6 @@ export const getAuthFromStorage = (): LoginInputs | null => {
 };
 
 export const deleteAuthFromStorage = (): void => {
-  localStorage.removeItem('auth');
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem('auth');
 };

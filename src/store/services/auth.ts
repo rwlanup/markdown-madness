@@ -1,8 +1,8 @@
 import { LoginInputs } from '@/pages/login';
 import { api } from '../api';
-import { collection, doc, getDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '@firebase/index';
-import { compareSync } from 'bcryptjs';
+import { compareSync, hashSync } from 'bcryptjs';
 import { Contributor } from '@/types/contributor';
 import { deleteAuthFromStorage, setAuthInStorage } from '@/helper/storage';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
@@ -22,10 +22,16 @@ export const authSlice = createSlice({
       deleteAuthFromStorage();
       state.user = null;
     },
+    updateHasChangedPassword: (state, { payload }: PayloadAction<string>) => {
+      if (state.user) {
+        state.user.hasChangedPassword = true;
+        setAuthInStorage(state.user.username, payload);
+      }
+    },
   },
 });
 
-export const { removeAuth, setAuth } = authSlice.actions;
+export const { removeAuth, setAuth, updateHasChangedPassword } = authSlice.actions;
 
 const authApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -53,13 +59,31 @@ const authApi = api.injectEndpoints({
           const { data } = await queryFulfilled;
           dispatch(setAuth(data));
         } catch (error) {
-          console.log(error);
           dispatch(removeAuth());
         }
+      },
+    }),
+
+    updatePassword: build.mutation<string, { username: string; newPassword: string }>({
+      query: ({ newPassword, username }) => ({
+        async fn() {
+          const newHashedPassword = hashSync(newPassword, 10);
+          await updateDoc(doc(contributorsRef, username), {
+            password: newHashedPassword,
+            hasChangedPassword: true,
+          });
+          return 'Password has been updated successfully';
+        },
+      }),
+      async onQueryStarted({ newPassword }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(updateHasChangedPassword(newPassword));
+        } catch (error) {}
       },
     }),
   }),
   overrideExisting: true,
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation, useUpdatePasswordMutation } = authApi;

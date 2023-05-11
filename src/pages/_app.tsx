@@ -10,6 +10,7 @@ import Header from '@/components/layouts/header';
 import StatusSidebar from '@/components/layouts/status-sidebar';
 import { Provider } from 'react-redux';
 import store from '@/store';
+import AuthProvider from '@/components/auth/auth-provider';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -34,13 +35,19 @@ export default function App({ Component, pageProps, emotionCache = clientSideEmo
             <Toolbar />
             <Box
               sx={{
-                pl: { md: '240px' },
+                pl: { md: '280px' },
                 pr: { lg: '360px' },
                 minHeight: 'calc(100vh - 64px)',
                 bgcolor: 'grey.100',
               }}
             >
-              <Component {...pageProps} />
+              {'requireNoAuth' in Component && Component.requireNoAuth ? (
+                <Component {...pageProps} />
+              ) : (
+                <AuthProvider>
+                  <Component {...pageProps} />
+                </AuthProvider>
+              )}
             </Box>
             <StatusSidebar />
           </div>
