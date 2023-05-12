@@ -35,7 +35,7 @@ export const loginFormValidationSchema = z.object({
 export type LoginInputs = z.infer<typeof loginFormValidationSchema>;
 
 function LoginForm() {
-  const { isLoading, sessionStatus } = useAuthUser({
+  const { isFetching, sessionStatus } = useAuthUser({
     onError(err) {
       enqueueSnackbar(err.message, { variant: 'error' });
     },
@@ -68,7 +68,7 @@ function LoginForm() {
         </Grid>
         <Grid item>
           <LoadingButton
-            loading={isLoading || sessionStatus === 'loading' || isSigningIn}
+            loading={isFetching || sessionStatus === 'loading' || isSigningIn}
             type="submit"
             variant="contained"
             size="large"

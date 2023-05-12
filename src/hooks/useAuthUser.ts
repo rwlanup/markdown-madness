@@ -15,22 +15,25 @@ export default function useAuthUser(
     | undefined
 ) {
   const session = useSession();
-  const { remove, ...auth } = useFirestoreDocument(
+  const { remove, refetch, ...auth } = useFirestoreDocument(
     ['auth', session.data?.user.username],
     session.status === 'authenticated' ? doc(contributorsCollectionRef, session.data?.user.username) : undefined,
     undefined,
-    { ...options, enabled: session.status === 'authenticated' }
+    { ...options, enabled: session.status === 'authenticated', cacheTime: 0 }
   );
 
   useEffect(() => {
     if (session.status === 'unauthenticated') {
       remove();
     }
-  }, [session.status, remove]);
+  }, [session.status, remove, refetch, session.data?.user.username]);
+
   return {
     ...auth,
     remove,
+    refetch,
     isLoading: session.status === 'loading' || auth.isLoading,
+    isFetching: session.status === 'loading' || auth.isFetching,
     sessionUser: session.data?.user,
     sessionStatus: session.status,
   };

@@ -1,27 +1,66 @@
-import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography } from '@mui/material';
+import { Contributor } from '@/types/contributor';
+import { contributorsCollectionRef } from '@firebase/collections';
+import {
+  Avatar,
+  Box,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  Skeleton,
+  Typography,
+} from '@mui/material';
+import { useFirestoreQuery } from '@react-query-firebase/firestore';
+import { QueryDocumentSnapshot, limit, orderBy, query } from 'firebase/firestore';
+import { enqueueSnackbar } from 'notistack';
+import { intToString } from '@/helper/number';
 
 interface ContributorListItemProps {
-  name: string;
-  imageUrl?: string;
-  score: number;
+  contributorSnap: QueryDocumentSnapshot<Contributor>;
 }
 
-function ContributorListItem({ name, score, imageUrl }: ContributorListItemProps) {
+function ContributorListItem({ contributorSnap }: ContributorListItemProps) {
+  const data = contributorSnap.data();
   return (
     <ListItem disablePadding>
       <ListItemButton sx={{ px: { xs: 2, sm: 3 } }}>
         <ListItemAvatar>
-          <Avatar alt={name} src={imageUrl}>
-            {name[0]}
-          </Avatar>
+          <Avatar alt={contributorSnap.id[0].toUpperCase()} src={data.avatarUrl} />
         </ListItemAvatar>
-        <ListItemText primary={name} secondary={`${score} Points`} />
+        <ListItemText primary={contributorSnap.id} secondary={`${intToString(data.score)} Points`} />
       </ListItemButton>
     </ListItem>
   );
 }
 
+function ContributorListItemSkeleton() {
+  return (
+    <ListItem disablePadding>
+      <ListItemButton sx={{ px: { xs: 2, sm: 3 } }}>
+        <ListItemAvatar>
+          <Skeleton variant="circular" height={40} width={40} />
+        </ListItemAvatar>
+        <ListItemText primary={<Skeleton height={20} width={240} />} secondary={<Skeleton height={20} width={200} />} />
+      </ListItemButton>
+    </ListItem>
+  );
+}
+
+const topContributorsQueryRef = query(contributorsCollectionRef, orderBy('score', 'desc'), limit(3));
+
 export default function TopContributor() {
+  const { isFetching, data, isError } = useFirestoreQuery(
+    'topContributors',
+    topContributorsQueryRef,
+    { subscribe: true },
+    {
+      onError() {
+        enqueueSnackbar('Could not get top contributors data', { variant: 'error' });
+      },
+    }
+  );
+  if (isError) return null;
   return (
     <Box>
       <Typography
@@ -34,8 +73,11 @@ export default function TopContributor() {
         Top Contributor
       </Typography>
       <List disablePadding>
-        <ContributorListItem name="Anup Rawal" score={2000} />
-        <ContributorListItem name="Sanjima Tamang" score={440008} />
+        {isFetching || !data
+          ? Array(3)
+              .fill('')
+              .map((_, idx) => <ContributorListItemSkeleton key={idx} />)
+          : data.docs.map((doc) => <ContributorListItem contributorSnap={doc} key={doc.id} />)}
       </List>
     </Box>
   );

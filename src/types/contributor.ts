@@ -1,7 +1,6 @@
 import { REACTION } from './other';
 
 export interface Contributor {
-  username: string;
   avatarUrl?: string;
   challengeScore: {
     POST_SCORE: number;
