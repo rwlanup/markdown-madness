@@ -21,9 +21,8 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import FeedRoundedIcon from '@mui/icons-material/FeedRounded';
 import { mergeSxProps } from '@/helper/props';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import useAppSelector from '@/hooks/useAppSelector';
-import useAppDispatch from '@/hooks/useAppDispatch';
-import { removeAuth } from '@/store/services/auth';
+import useAuthUser from '@/hooks/useAuthUser';
+import { signOut } from 'next-auth/react';
 
 interface MenuItemButtonProps {
   Icon: React.ReactElement;
@@ -65,10 +64,10 @@ export default function Sidebar({ isOpen, toggleIsOpen }: SidebarProps) {
     defaultMatches: true,
   });
   const pathname = usePathname();
-  const user = useAppSelector((state) => state.auth.user);
-  const dispatch = useAppDispatch();
+  const { data } = useAuthUser();
+  const user = data?.data();
   const logout = () => {
-    dispatch(removeAuth());
+    signOut({ redirect: false, callbackUrl: '/login' });
   };
 
   return (

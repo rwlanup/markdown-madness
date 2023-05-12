@@ -1,14 +1,14 @@
-import { Box, Grid, Typography, Link, Alert } from '@mui/material';
+import { Box, Grid, Typography, Link } from '@mui/material';
 import Head from 'next/head';
 import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import ControlledTextField from '@/components/input/controlled-text-field';
 import { LoadingButton } from '@mui/lab';
-import { useLoginMutation } from '@/store/services/auth';
-import useAppSelector from '@/hooks/useAppSelector';
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { signIn } from 'next-auth/react';
+import useAuthUser from '@/hooks/useAuthUser';
+import { enqueueSnackbar } from 'notistack';
+import { useState } from 'react';
 
 function LoginMetaData() {
   return (
@@ -35,9 +35,12 @@ export const loginFormValidationSchema = z.object({
 export type LoginInputs = z.infer<typeof loginFormValidationSchema>;
 
 function LoginForm() {
-  const [login, { isLoading, isError, error }] = useLoginMutation({
-    fixedCacheKey: 'AUTH_LOGIN',
+  const { isLoading, sessionStatus } = useAuthUser({
+    onError(err) {
+      enqueueSnackbar(err.message, { variant: 'error' });
+    },
   });
+
   const { control, handleSubmit } = useForm<LoginInputs>({
     resolver: zodResolver(loginFormValidationSchema),
     defaultValues: {
@@ -45,18 +48,18 @@ function LoginForm() {
       username: '',
     },
   });
-
-  const onSubmit = (data: LoginInputs) => {
-    login(data);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const onSubmit = async (data: LoginInputs) => {
+    setIsSigningIn(true);
+    const result = await signIn('credentials', { redirect: false, callbackUrl: '/', ...data });
+    if (result?.error) {
+      enqueueSnackbar('Your username and/or password does not match', { variant: 'error' });
+    }
+    setIsSigningIn(false);
   };
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)}>
       <Grid container direction="column" spacing={2.5}>
-        {isError && !!error && (
-          <Grid item>
-            <Alert severity="error">{error.message}</Alert>
-          </Grid>
-        )}
         <Grid item>
           <ControlledTextField label="Username" placeholder="Eg: johndoe" name="username" control={control} />
         </Grid>
@@ -65,7 +68,7 @@ function LoginForm() {
         </Grid>
         <Grid item>
           <LoadingButton
-            loading={isLoading}
+            loading={isLoading || sessionStatus === 'loading' || isSigningIn}
             type="submit"
             variant="contained"
             size="large"
@@ -83,15 +86,6 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  const user = useAppSelector((state) => state.auth.user);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (user !== null) {
-      router.replace('/');
-    }
-  }, [user, router]);
-
   return (
     <Box component="main" sx={{ py: { sm: 3 } }}>
       <LoginMetaData />
@@ -115,4 +109,4 @@ export default function LoginPage() {
   );
 }
 
-LoginPage.requireNoAuth = true;
+LoginPage.auth = false;

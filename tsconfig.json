@@ -19,6 +19,6 @@
       "@firebase/*": ["./firebase/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "env.d.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/types/*.d.ts"],
   "exclude": ["node_modules"]
 }

@@ -1,27 +1,13 @@
-import { AppBar, Avatar, Box, Button, IconButton, Toolbar, Typography } from '@mui/material';
+import { AppBar, Avatar, Button, IconButton, Toolbar, Typography } from '@mui/material';
 import Sidebar from '../sidebar';
 import useToggle from '@/hooks/useToggle';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import Link from 'next/link';
-import useAppSelector from '@/hooks/useAppSelector';
-import { useLoginMutation } from '@/store/services/auth';
-import { useEffect } from 'react';
-import { getAuthFromStorage } from '@/helper/storage';
+import { useSession } from 'next-auth/react';
 
 export default function Header() {
   const [isDrawerOpen, toggleIsDrawerOpen] = useToggle(false);
-  const user = useAppSelector((state) => state.auth.user);
-  const [login] = useLoginMutation({
-    fixedCacheKey: 'AUTH_LOGIN',
-  });
-
-  useEffect(() => {
-    const userInfo = getAuthFromStorage();
-    if (userInfo) {
-      login(userInfo);
-    }
-  }, [login]);
-
+  const session = useSession();
   return (
     <>
       <AppBar
@@ -48,8 +34,12 @@ export default function Header() {
           <Typography sx={{ display: { xs: 'none', sm: 'block' } }} variant="subtitle1" fontWeight="Medium" noWrap>
             Markdown Madness
           </Typography>
-          {!!user ? (
-            <Avatar sx={{ ml: 'auto' }} alt={user.username[0].toUpperCase()} src={user.avatarUrl} />
+          {!!session.data && session.status === 'authenticated' ? (
+            <Avatar
+              sx={{ ml: 'auto', bgcolor: 'primary.main' }}
+              alt={session.data.user.username[0].toUpperCase()}
+              src={session.data.user.avatarUrl}
+            />
           ) : (
             <Button sx={{ ml: 'auto' }} variant="contained" LinkComponent={Link} href="/login">
               Login

@@ -1,4 +1,4 @@
-import type { MadnessContent } from '@/types/madness';
+import type { MadnessContent as TMadnessContent } from '@/types/madness';
 import {
   Avatar,
   Box,
@@ -15,9 +15,11 @@ import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
 import ThumbDownRoundedIcon from '@mui/icons-material/ThumbDownRounded';
 import MuiMarkdown, { getOverrides } from 'mui-markdown';
 import { intToString } from '@/helper/number';
+import type { QueryDocumentSnapshot } from 'firebase/firestore';
+import { formatDateTime } from '@/helper/datetime';
 
 interface MadnessContentProps {
-  content: MadnessContent;
+  contentSnap: QueryDocumentSnapshot<Omit<TMadnessContent, 'id'>>;
 }
 
 const markdownOverrides: React.ComponentProps<typeof MuiMarkdown>['overrides'] = {
@@ -35,7 +37,8 @@ const markdownOverrides: React.ComponentProps<typeof MuiMarkdown>['overrides'] =
   img: { component: Box, props: { component: 'img', sx: { maxWidth: '100%' } } },
 };
 
-export default function MadnessContent({ content }: MadnessContentProps) {
+export default function MadnessContent({ contentSnap }: MadnessContentProps) {
+  const content = contentSnap.data();
   return (
     <Card
       elevation={0}
@@ -53,7 +56,7 @@ export default function MadnessContent({ content }: MadnessContentProps) {
           </Avatar>
         }
         title={content.contributor.username}
-        subheader={`Posted on ${content.createdAt}`}
+        subheader={`Posted on ${formatDateTime(content.createdAt)}`}
         titleTypographyProps={{ fontWeight: 'Medium' }}
       />
       <CardContent
