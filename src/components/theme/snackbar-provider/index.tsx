@@ -28,5 +28,12 @@ const SnackbarProviderComponents: SnackbarProviderProps['Components'] = {
 };
 
 export default function AppSnackbarProvider() {
-  return <SnackbarProvider anchorOrigin={snackbarOrigin} maxSnack={3} Components={SnackbarProviderComponents} />;
+  return (
+    <SnackbarProvider
+      preventDuplicate
+      anchorOrigin={snackbarOrigin}
+      maxSnack={3}
+      Components={SnackbarProviderComponents}
+    />
+  );
 }

@@ -4,7 +4,7 @@ import { REACTION } from './other';
 
 export interface MadnessContent {
   id: string;
-  contributor: Pick<Contributor, 'username' | 'avatarUrl'>;
+  contributor: Pick<Contributor, 'avatarUrl'> & { username: string };
   createdAt: Timestamp;
   markdown: string;
   policeCount: number;

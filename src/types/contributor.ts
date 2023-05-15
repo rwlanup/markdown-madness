@@ -10,7 +10,7 @@ export interface Contributor {
   };
   hasChangedPassword: boolean;
   policeCount: number;
-  reactedPosts: Record<string, REACTION>;
+  reactedPosts: Record<string, REACTION | null>;
   score: number;
   thiefCount: number;
   password?: string;

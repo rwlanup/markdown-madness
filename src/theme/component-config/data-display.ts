@@ -18,5 +18,13 @@ export const DataDisplayComponentsConfig: ThemeOptions = {
         },
       },
     },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          paddingLeft: '12px',
+          paddingRight: '12px',
+        },
+      },
+    },
   },
 };
