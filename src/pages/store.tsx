@@ -6,14 +6,28 @@ import { storeCollectionRef } from '@firebase/collections';
 import ErrorScreen from '@/components/feedback/error';
 import StoreItemSkeleton from '@/components/store/store-item/StoreItemSkeleton';
 import StoreItem from '@/components/store/store-item';
+import Head from 'next/head';
 
 const storeQuery = query<TStoreItem>(storeCollectionRef, orderBy('points', 'asc'));
+
+function StoreMetaData() {
+  return (
+    <Head>
+      <title>Buy Police and Thief | Markdown Madness</title>
+      <meta
+        name="description"
+        content="Safeguard valuable contents or rob others contents points. Navigate intricate challenges, outmaneuver opponents, and embrace the thrill of calculated risk. Step into a world where fortunes hang in the balance - get your copy of Polices and Thieves today!"
+      />
+    </Head>
+  );
+}
 
 export default function StorePage() {
   const { data, isLoading, isError, error } = useFirestoreQuery<TStoreItem>('store', storeQuery);
 
   return (
     <>
+      <StoreMetaData />
       {isError ? (
         <ErrorScreen title={error.message} />
       ) : (

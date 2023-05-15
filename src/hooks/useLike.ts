@@ -12,6 +12,7 @@ export default function useLike(id: string) {
   const mutation = useFirestoreTransaction(firestore, async (tsx) => {
     if (!userSnap?.exists()) {
       enqueueSnackbar('Please login to add reaction');
+      return;
     }
     const contentSnap = await tsx.get(doc(contentsCollectionRef, id));
 
