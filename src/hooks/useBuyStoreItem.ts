@@ -30,7 +30,9 @@ export default function useBuyStoreItem(itemId: string) {
       score: userData.score - storeItemData.points,
     });
 
-    enqueueSnackbar(`You have successfully bought store item worth ${storeItemData.points}`, { variant: 'success' });
+    enqueueSnackbar(`You have successfully bought store item worth ${storeItemData.points} points`, {
+      variant: 'success',
+    });
   });
 
   return mutation;
