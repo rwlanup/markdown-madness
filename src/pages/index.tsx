@@ -92,5 +92,3 @@ export default function Home() {
     </>
   );
 }
-
-Home.requireNoAuth = true;
