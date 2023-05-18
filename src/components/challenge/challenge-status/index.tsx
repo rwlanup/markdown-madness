@@ -3,9 +3,9 @@ import CircleRoundedIcon from '@mui/icons-material/CircleRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import { ChallengeType } from '@/types/challenge';
 import useChallengeQuery from '@/hooks/useChallengeQuery';
+import useAuthUser from '@/hooks/useAuthUser';
 
-function ChallengeItem({ children }: { children: React.ReactNode }) {
-  const isChallengeComplete = true;
+function ChallengeItem({ children, isChallengeComplete }: { children: React.ReactNode; isChallengeComplete: boolean }) {
   const Icon = isChallengeComplete ? CheckCircleRoundedIcon : CircleRoundedIcon;
   return (
     <Box sx={{ display: 'flex' }}>
@@ -30,6 +30,8 @@ function elaborateChallengeInText(type: ChallengeType, value: number): string {
 
 export default function ChallengeStatus() {
   const { isError, isFetching, challengeDoc } = useChallengeQuery();
+  const { data: userSnap } = useAuthUser();
+  const userData = userSnap?.data();
 
   if (isError) return null;
 
@@ -51,8 +53,12 @@ export default function ChallengeStatus() {
           <Box component="ul" sx={{ listStyle: 'none', pl: 0, mt: 1.5, mb: 0.5 }}>
             {Object.keys(challengeDoc.tasks).map((type, index) => (
               <Box component="li" sx={{ mt: index === 0 ? 0 : 1 }} key={type}>
-                <ChallengeItem>
-                  {elaborateChallengeInText(type as ChallengeType, challengeDoc.tasks[type as ChallengeType])}
+                <ChallengeItem
+                  isChallengeComplete={
+                    !!userData && userData.challengeScore.PROTECT >= challengeDoc.tasks[type as ChallengeType]!
+                  }
+                >
+                  {elaborateChallengeInText(type as ChallengeType, challengeDoc.tasks[type as ChallengeType]!)}
                 </ChallengeItem>
               </Box>
             ))}

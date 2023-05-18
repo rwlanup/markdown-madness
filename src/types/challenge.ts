@@ -6,6 +6,6 @@ export type ChallengeType = 'ROB' | 'PROTECT' | 'SCORE';
 export interface Challenge {
   createdAt: Timestamp;
   worthScore: number;
-  tasks: Record<ChallengeType, number>;
+  tasks: Partial<Record<ChallengeType, number>>;
   winner?: null | (Pick<Contributor, 'avatarUrl'> & { username: string });
 }

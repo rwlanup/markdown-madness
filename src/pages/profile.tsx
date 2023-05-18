@@ -152,7 +152,7 @@ export default function ProfilePage() {
                   <ChallengeStatItem
                     type={type as ChallengeType}
                     userScore={userData.challengeScore[type as ChallengeType]}
-                    challenge={challengeDoc.tasks[type as ChallengeType]}
+                    challenge={challengeDoc.tasks[type as ChallengeType]!}
                   />
                 </Grid>
               ))}
