@@ -1,0 +1,126 @@
+name: Add markdown contents to firebase store and create account for game
+
+on:
+  pull_request:
+    branches:
+      - master
+    types: [opened]
+
+jobs:
+  get-contributor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: .github/workflows/main.yml
+
+      - run: npm install firebase-admin bcryptjs
+
+      - name: Add Contributor and Madness Content to Firestore from PR
+        uses: actions/github-script@v6
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        with:
+          script: |
+            try {
+              const { pull_request } = context.payload;
+              // Get username and avatar link of contributor
+              const { login: username, avatar_url } = pull_request.user;
+              const { owner, repo } = context.repo;
+
+              // Get changed files for pull requests
+              const { data: files } = await github.rest.pulls.listFiles({
+                owner,
+                repo,
+                pull_number: pull_request.number
+              });
+
+              // Filter added markdown files
+              const addedFiles = files.filter(file => file.status === 'added' && file.filename.endsWith('.md'));
+
+              // Get the content of each files in raw format
+              const addedFileContents = await Promise.all(
+                addedFiles.map(async file => {
+                  const { data } = await github.rest.repos.getContent({
+                    owner,
+                    repo,
+                    path: file.filename,
+                    ref: pull_request.head.ref,
+                    headers: {
+                      'accept': 'application/vnd.github.raw'
+                    }
+                  });
+                  return data;
+                })
+              );
+
+              const mdContents = addedFileContents.filter(Boolean);
+              if(mdContents.length === 0) return;
+
+              const admin = require('firebase-admin');
+              const bcrypt = require('bcryptjs');
+              admin.initializeApp({
+                credential: admin.credential.cert(JSON.parse(process.env.SERVICE_ACCOUNT)),
+                databaseURL: `https://${process.env.DB_NAME}.firebaseio.com`
+              });
+
+              const db = admin.firestore();
+              const contributorsCollection = db.collection('contributors');
+              const contentsCollection = db.collection('markdownContents');
+              
+              await db.runTransaction(async tsx => {
+                const contributor = await tsx.get(contributorsCollection.doc(username));
+                if(!contributor.exists) {
+                  const contributorRef = contributorsCollection.doc(username);
+                  tsx.set(contributorRef, {
+                    password: bcrypt.hashSync(username, 10),
+                    avatarUrl: avatar_url,
+                    score: Math.round(Math.random() * 100), // Random score between 0 - 100 for each contributor on first contribution
+                    policeCount: 0,
+                    thiefCount: 0,
+                    hasChangedPassword: false,
+                    challengeScore: {
+                      challengeId: null,
+                      ROB: 0,
+                      PROTECT: 0,
+                      SCORE: 0
+                    },
+                    reactedPosts: {},
+                  });
+                }
+              });
+
+              const createdAt = admin.firestore.FieldValue.serverTimestamp();
+              for(let content of mdContents) {
+                const contentRef = contentsCollection.doc();
+                tsx.set(contentRef, {
+                  markdown: content,
+                  createdAt,
+                  reactionCount: {
+                    LIKES: 0,
+                    DISLIKES: 0
+                  },
+                  score: Math.round(Math.random() * 20), // Random score between 0 - 20 for each content
+                  policeCount: 0,
+                  contributor: {
+                    username,
+                    avatarUrl: avatar_url
+                  }
+                });
+              }
+
+              console.log('New contents added successfully :)');
+              process.exit(0);
+            } catch(error) {
+              console.error(error);
+              process.exit(1);
+            }
+
+          github-token: ${{ secrets.ACCESS_TOKEN }}
