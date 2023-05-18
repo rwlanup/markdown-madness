@@ -151,7 +151,11 @@ export default function ProfilePage() {
                 <Grid item key={type}>
                   <ChallengeStatItem
                     type={type as ChallengeType}
-                    userScore={userData.challengeScore[type as ChallengeType]}
+                    userScore={
+                      userData.challengeScore.challengeId === challengeDoc.id
+                        ? userData.challengeScore[type as ChallengeType]
+                        : 0
+                    }
                     challenge={challengeDoc.tasks[type as ChallengeType]!}
                   />
                 </Grid>

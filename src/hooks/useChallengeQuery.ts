@@ -4,7 +4,7 @@ import { useFirestoreQuery } from '@react-query-firebase/firestore';
 import { limit, orderBy, query } from 'firebase/firestore';
 import { enqueueSnackbar } from 'notistack';
 
-const challengeQuery = query<Challenge>(challengesCollectionRef, orderBy('createdAt', 'desc'), limit(1));
+export const challengeQuery = query<Challenge>(challengesCollectionRef, orderBy('createdAt', 'desc'), limit(1));
 export default function useChallengeQuery() {
   const query = useFirestoreQuery<Challenge>(
     'challenges',
@@ -19,7 +19,9 @@ export default function useChallengeQuery() {
     }
   );
 
-  const challengeDoc = query.data?.docs.length ? query.data.docs[0].data() : undefined;
+  const challengeDoc = query.data?.docs.length
+    ? { ...query.data.docs[0].data(), id: query.data.docs[0].id }
+    : undefined;
   return {
     ...query,
     challengeDoc,

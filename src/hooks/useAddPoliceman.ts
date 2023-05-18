@@ -1,12 +1,14 @@
 import { contentsCollectionRef } from '@firebase/collections';
 import { useFirestoreTransaction } from '@react-query-firebase/firestore';
-import { doc } from 'firebase/firestore';
+import { doc, getDocs } from 'firebase/firestore';
 import useAuthUser from './useAuthUser';
 import { firestore } from '@firebase/index';
 import { enqueueSnackbar } from 'notistack';
+import useChallengeQuery, { challengeQuery } from './useChallengeQuery';
 
 export default function useAddPoliceman(contentId: string, policeCount: number) {
   const { data: userSnap } = useAuthUser();
+  let { data: challengeSnap } = useChallengeQuery();
   const mutation = useFirestoreTransaction(firestore, async (tsx) => {
     if (!userSnap?.exists()) {
       enqueueSnackbar('Please login to rob points');
@@ -38,14 +40,39 @@ export default function useAddPoliceman(contentId: string, policeCount: number) 
       return;
     }
 
+    if (!challengeSnap) {
+      challengeSnap = await getDocs(challengeQuery);
+    }
+
     tsx.update(contentSnap.ref, {
       policeCount: contentData.policeCount + policeCount,
     });
 
-    tsx.update(userSnap.ref, {
-      policeCount: Math.max(userData.policeCount - policeCount, 0),
-      'challengeScore.PROTECT': userData.challengeScore.PROTECT + 1,
-    });
+    const newUserPoliceCount = Math.max(userData.policeCount - policeCount, 0);
+
+    if (challengeSnap && challengeSnap.size > 0) {
+      const challengeDocSnap = challengeSnap.docs[0];
+      if (challengeDocSnap.id === userData.challengeScore.challengeId) {
+        tsx.update(userSnap.ref, {
+          policeCount: newUserPoliceCount,
+          'challengeScore.PROTECT': userData.challengeScore.PROTECT + policeCount,
+        });
+      } else {
+        tsx.update(userSnap.ref, {
+          policeCount: newUserPoliceCount,
+          challengeScore: {
+            challengeId: challengeDocSnap.id,
+            ROB: 0,
+            PROTECT: policeCount,
+            SCORE: 0,
+          },
+        });
+      }
+    } else {
+      tsx.update(userSnap.ref, {
+        policeCount: newUserPoliceCount,
+      });
+    }
 
     enqueueSnackbar('You have added policeman successfull');
     return true;

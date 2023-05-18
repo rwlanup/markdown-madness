@@ -1,12 +1,14 @@
 import { contentsCollectionRef } from '@firebase/collections';
 import { useFirestoreTransaction } from '@react-query-firebase/firestore';
-import { doc } from 'firebase/firestore';
+import { doc, getDocs } from 'firebase/firestore';
 import useAuthUser from './useAuthUser';
 import { firestore } from '@firebase/index';
 import { enqueueSnackbar } from 'notistack';
+import useChallengeQuery, { challengeQuery } from './useChallengeQuery';
 
 export default function useCollectPoints(contentId: string) {
   const { data: userSnap } = useAuthUser();
+  let { data: challengeSnap } = useChallengeQuery();
   const mutation = useFirestoreTransaction(firestore, async (tsx) => {
     if (!userSnap?.exists()) {
       enqueueSnackbar('Please login to collect points');
@@ -30,10 +32,35 @@ export default function useCollectPoints(contentId: string) {
       return;
     }
 
-    tsx.update(userSnap.ref, {
-      score: userData.score + contentData.score,
-      'challengeScore.SCORE': userData.challengeScore.SCORE + contentData.score,
-    });
+    if (!challengeSnap) {
+      challengeSnap = await getDocs(challengeQuery);
+    }
+
+    const newUserScore = userData.score + contentData.score;
+
+    if (challengeSnap && challengeSnap.size > 0) {
+      const challengeDocSnap = challengeSnap.docs[0];
+      if (challengeDocSnap.id === userData.challengeScore.challengeId) {
+        tsx.update(userSnap.ref, {
+          score: newUserScore,
+          'challengeScore.SCORE': userData.challengeScore.SCORE + contentData.score,
+        });
+      } else {
+        tsx.update(userSnap.ref, {
+          score: newUserScore,
+          challengeScore: {
+            challengeId: challengeDocSnap.id,
+            ROB: 0,
+            PROTECT: 0,
+            SCORE: contentData.score,
+          },
+        });
+      }
+    } else {
+      tsx.update(userSnap.ref, {
+        score: newUserScore,
+      });
+    }
 
     tsx.update(contentSnap.ref, {
       score: 0,

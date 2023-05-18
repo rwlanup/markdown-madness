@@ -55,7 +55,9 @@ export default function ChallengeStatus() {
               <Box component="li" sx={{ mt: index === 0 ? 0 : 1 }} key={type}>
                 <ChallengeItem
                   isChallengeComplete={
-                    !!userData && userData.challengeScore.PROTECT >= challengeDoc.tasks[type as ChallengeType]!
+                    !!userData &&
+                    userData.challengeScore.challengeId === challengeDoc.id &&
+                    userData.challengeScore[type as ChallengeType] >= challengeDoc.tasks[type as ChallengeType]!
                   }
                 >
                   {elaborateChallengeInText(type as ChallengeType, challengeDoc.tasks[type as ChallengeType]!)}
