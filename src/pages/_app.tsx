@@ -12,6 +12,7 @@ import AuthRedirect from '@/components/auth/auth-redirect';
 import { SessionProvider } from 'next-auth/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import ClaimChallengeButton from '@/components/challenge/claim-challenge-button';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -52,10 +53,13 @@ export default function App({
                 sx={{
                   pl: { md: '280px' },
                   pr: { lg: '360px' },
-                  minHeight: 'calc(100vh - 64px)',
+                  minHeight: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
                   bgcolor: 'grey.100',
+                  position: 'relative',
+                  pb: 5,
                 }}
               >
+                <ClaimChallengeButton />
                 <AuthRedirect
                   requireAuth={'auth' in Component && typeof Component.auth === 'boolean' ? Component.auth : undefined}
                 >

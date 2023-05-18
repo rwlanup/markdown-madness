@@ -4,6 +4,7 @@ import { firestore } from '@firebase/index';
 import { enqueueSnackbar } from 'notistack';
 import useChallengeQuery, { challengeQuery } from './useChallengeQuery';
 import { getDocs } from 'firebase/firestore';
+import { ChallengeType } from '@/types/challenge';
 
 export default function useClaimChallengePoints() {
   const { data: userSnap } = useAuthUser();
@@ -35,6 +36,16 @@ export default function useClaimChallengePoints() {
     }
 
     const userData = userSnap.data();
+
+    const hasCompletedAllChallengeTasks =
+      Object.keys(challengeData.tasks).every((task) => {
+        return userData.challengeScore[task as ChallengeType] >= challengeData.tasks[task as ChallengeType]!;
+      }) && challengeDoc.id === userData.challengeScore.challengeId;
+
+    if (!hasCompletedAllChallengeTasks) {
+      enqueueSnackbar('Please complete all tasks of challenge before claiming points', { variant: 'error' });
+      return;
+    }
     tsx.update(challengeDoc.ref, {
       'winner.avatarUrl': userData.avatarUrl,
       'winner.username': userSnap.id,
