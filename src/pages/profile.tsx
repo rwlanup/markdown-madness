@@ -6,6 +6,8 @@ import Image from 'next/image';
 import PoliceImage from '@images/police.png';
 import ThiefImage from '@images/thief.png';
 import CoinImage from '@images/coin.png';
+import useChallengeQuery from '@/hooks/useChallengeQuery';
+import { ChallengeType } from '@/types/challenge';
 
 function ProfileMetaData() {
   const { data: userSnap } = useAuthUser();
@@ -18,8 +20,41 @@ function ProfileMetaData() {
 
 const IMAGE_SIZE = 48;
 
+function ChallengeStatItem({
+  type,
+  userScore,
+  challenge,
+}: {
+  type: ChallengeType;
+  userScore: number;
+  challenge: number;
+}) {
+  return (
+    <>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+        <Typography sx={{ textTransform: 'capitalize' }} color="text.secondary" variant="body2" fontWeight="Medium">
+          {type}
+        </Typography>
+        <Typography
+          fontWeight="Bold"
+          color={type === 'SCORE' ? 'success.main' : type === 'PROTECT' ? 'primary.main' : 'secondary.main'}
+        >
+          {userScore} / {challenge}
+        </Typography>
+      </Box>
+      <LinearProgress
+        variant="determinate"
+        color={type === 'SCORE' ? 'success' : type === 'PROTECT' ? 'primary' : 'secondary'}
+        sx={{ height: 12, borderRadius: 0.5 }}
+        value={Math.min(100, (userScore / challenge) * 100)}
+      />
+    </>
+  );
+}
+
 export default function ProfilePage() {
   const { data: userSnap } = useAuthUser();
+  const { challengeDoc } = useChallengeQuery();
   if (!userSnap?.exists()) return null;
   const userData = userSnap.data();
   return (
@@ -106,51 +141,24 @@ export default function ProfilePage() {
           </Grid>
         </Grid>
         <Divider sx={{ my: 3 }} />
-        <Box sx={{ maxWidth: '480px', mx: 'auto' }}>
-          <Typography align="center" variant="h6" component="h3" fontWeight="Bold">
-            Your challenge score
-          </Typography>
-          <Grid container spacing={{ xs: 2, sm: 3 }} direction="column">
-            <Grid item>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                <Typography color="text.secondary" variant="body2" fontWeight="Medium">
-                  Score
-                </Typography>
-                <Typography fontWeight="Bold" color="success.main">
-                  {userData.challengeScore.SCORE} / 120
-                </Typography>
-              </Box>
-              <LinearProgress variant="determinate" color="success" sx={{ height: 12, borderRadius: 0.5 }} value={50} />
+        {!!challengeDoc && !challengeDoc.winner && (
+          <Box sx={{ maxWidth: '480px', mx: 'auto' }}>
+            <Typography align="center" variant="h6" component="h3" fontWeight="Bold">
+              Your challenge score
+            </Typography>
+            <Grid container spacing={{ xs: 2, sm: 3 }} direction="column">
+              {Object.keys(challengeDoc.tasks).map((type) => (
+                <Grid item key={type}>
+                  <ChallengeStatItem
+                    type={type as ChallengeType}
+                    userScore={userData.challengeScore[type as ChallengeType]}
+                    challenge={challengeDoc.tasks[type as ChallengeType]}
+                  />
+                </Grid>
+              ))}
             </Grid>
-            <Grid item>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                <Typography color="text.secondary" variant="body2" fontWeight="Medium">
-                  Protect
-                </Typography>
-                <Typography fontWeight="Bold" color="primary.main">
-                  {userData.challengeScore.PROTECT} / 12
-                </Typography>
-              </Box>
-              <LinearProgress variant="determinate" color="primary" sx={{ height: 12, borderRadius: 0.5 }} value={40} />
-            </Grid>
-            <Grid item>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                <Typography color="text.secondary" variant="body2" fontWeight="Medium">
-                  Rob
-                </Typography>
-                <Typography fontWeight="Bold" color="secondary.main">
-                  {userData.challengeScore.ROB} / 6
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                color="secondary"
-                sx={{ height: 12, borderRadius: 0.5 }}
-                value={70}
-              />
-            </Grid>
-          </Grid>
-        </Box>
+          </Box>
+        )}
       </Box>
     </>
   );

@@ -1,6 +1,8 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Skeleton, Typography } from '@mui/material';
 import CircleRoundedIcon from '@mui/icons-material/CircleRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import { ChallengeType } from '@/types/challenge';
+import useChallengeQuery from '@/hooks/useChallengeQuery';
 
 function ChallengeItem({ children }: { children: React.ReactNode }) {
   const isChallengeComplete = true;
@@ -15,20 +17,48 @@ function ChallengeItem({ children }: { children: React.ReactNode }) {
   );
 }
 
+function elaborateChallengeInText(type: ChallengeType, value: number): string {
+  switch (type) {
+    case 'PROTECT':
+      return `Add protection for ${value} content${value > 1 ? 's' : ''}`;
+    case 'ROB':
+      return `Rob points from ${value} content${value > 1 ? 's' : ''}`;
+    case 'SCORE':
+      return `Increase your score by ${value} point${value > 1 ? 's' : ''}`;
+  }
+}
+
 export default function ChallengeStatus() {
+  const { isError, isFetching, challengeDoc } = useChallengeQuery();
+
+  if (isError) return null;
+
   return (
     <Box sx={{ p: 2.5, bgcolor: 'secondary.100', borderRadius: 0.75 }}>
-      <Typography variant="overline" component="h3" fontWeight="Bold">
-        Ongoing Challenge
-      </Typography>
-      <Box component="ul" sx={{ listStyle: 'none', pl: 0, mt: 1.5, mb: 0.5 }}>
-        <Box component="li" sx={{ mb: 1 }}>
-          <ChallengeItem>Contribute 4 madness content</ChallengeItem>
-        </Box>
-        <Box component="li">
-          <ChallengeItem>Increase your score by 100</ChallengeItem>
-        </Box>
-      </Box>
+      {isFetching || !challengeDoc ? (
+        <>
+          <Skeleton height={28} width={160} />
+          <Box sx={{ mt: 1.5, mb: 0.5 }}>
+            <Skeleton height={20} width="100%" />
+            <Skeleton height={20} width="100%" />
+          </Box>
+        </>
+      ) : (
+        <>
+          <Typography variant="overline" component="h3" fontWeight="Bold">
+            {challengeDoc.winner ? 'Past challenge' : 'Ongoing challenge'}
+          </Typography>
+          <Box component="ul" sx={{ listStyle: 'none', pl: 0, mt: 1.5, mb: 0.5 }}>
+            {Object.keys(challengeDoc.tasks).map((type, index) => (
+              <Box component="li" sx={{ mt: index === 0 ? 0 : 1 }} key={type}>
+                <ChallengeItem>
+                  {elaborateChallengeInText(type as ChallengeType, challengeDoc.tasks[type as ChallengeType])}
+                </ChallengeItem>
+              </Box>
+            ))}
+          </Box>
+        </>
+      )}
     </Box>
   );
 }
