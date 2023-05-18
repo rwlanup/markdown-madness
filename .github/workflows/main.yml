@@ -95,27 +95,27 @@ jobs:
                     reactedPosts: {},
                   });
                 }
+
+                // Add all madness contents
+                const createdAt = admin.firestore.FieldValue.serverTimestamp();
+                for(let content of mdContents) {
+                  const contentRef = contentsCollection.doc();
+                  tsx.set(contentRef, {
+                    markdown: content,
+                    createdAt,
+                    reactionCount: {
+                      LIKES: 0,
+                      DISLIKES: 0
+                    },
+                    score: Math.round(Math.random() * 20), // Random score between 0 - 20 for each content
+                    policeCount: 0,
+                    contributor: {
+                      username,
+                      avatarUrl: avatar_url
+                    }
+                  });
+                }
               });
-
-              const createdAt = admin.firestore.FieldValue.serverTimestamp();
-              for(let content of mdContents) {
-                const contentRef = contentsCollection.doc();
-                tsx.set(contentRef, {
-                  markdown: content,
-                  createdAt,
-                  reactionCount: {
-                    LIKES: 0,
-                    DISLIKES: 0
-                  },
-                  score: Math.round(Math.random() * 20), // Random score between 0 - 20 for each content
-                  policeCount: 0,
-                  contributor: {
-                    username,
-                    avatarUrl: avatar_url
-                  }
-                });
-              }
-
               console.log('New contents added successfully :)');
               process.exit(0);
             } catch(error) {
