@@ -24,7 +24,6 @@ export interface AppProps extends _AppProps {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnMount: false,
       refetchOnWindowFocus: false,
     },
   },

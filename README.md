@@ -32,7 +32,6 @@ Preview link: [https://markdown-madness.vercel.app/](https://markdown-madness.ve
 - A random points between 0 and 20 is added to every content you contribute. You can collect that points to increase your points and win challenge.
 - If you try to rob points from the content that is police protected, then you will lose all your thief if there are more police assigned than the number of thief you have. If you have more thief than police assigned to the content, then your rob is success.
 - Multiple contributors might complete challenge at the same time, so in order to win the challenge you have to claim points from the challenge.
-- I do not guarantee the protection of your account.
 
 ---
 
